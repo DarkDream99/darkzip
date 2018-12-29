@@ -7,7 +7,7 @@ EXIT = "e"
 NOT_USE = "-"
 
 command = NOT_USE
-dark_archiver = Archiver
+dark_archiver = Archiver(None, None)
 while command != EXIT:
     line = input(">> ")
     params = line.split(' ')

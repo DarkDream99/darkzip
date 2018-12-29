@@ -17,7 +17,7 @@ class Archiver:
     def __init__(self, folder_path, folder_title):
         self.folder_path = folder_path
         self.folder_title = folder_title
-        getcontext().prec = 100_000
+        getcontext().prec = 1000
 
     @staticmethod
     def create_darkzip_file(file_obj):
@@ -151,7 +151,7 @@ class Archiver:
 
         chances = dict()
         for item in counter:
-            chances[item] = Decimal(str(round(counter[item] / all_counts, 10)))
+            chances[item] = Decimal(str(round(counter[item] / all_counts, 20)))
 
         base_distance = [Decimal('0'), Decimal('1')]
         next_dist = base_distance
