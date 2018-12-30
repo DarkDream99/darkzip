@@ -151,7 +151,8 @@ class Archiver:
 
         chances = dict()
         for item in counter:
-            chances[item] = Decimal(str(round(counter[item] / all_counts, 20)))
+            float_number = round(counter[item] / all_counts, 3)
+            chances[item] = Decimal(str(float_number))
 
         base_distance = [Decimal('0'), Decimal('1')]
         next_dist = base_distance
@@ -211,10 +212,12 @@ class Archiver:
         source_bytes = []
         while byte_count != 0:
             for byte in unic_byte_ls:
-                new_dist = Archiver.next_interval_code(next_dist, prev_byte_ls[byte], byte, comm_chances, chances)
+                new_dist = Archiver.next_interval_code(base_dist, prev_byte_ls[byte], byte, comm_chances, chances)
                 if new_dist[0] < interval < new_dist[1]:
-                    next_dist = new_dist
+                    # next_dist = new_dist
                     source_bytes.append(byte)
+                    # code = (code - RangeLow(x)) / (RangeHigh(x) - RangeLow(x))
+                    interval = (interval - new_dist[0]) / (new_dist[1] - new_dist[0])
                     break
 
             byte_count -= 1
