@@ -17,7 +17,7 @@ class Archiver:
     def __init__(self, folder_path, folder_title):
         self.folder_path = folder_path
         self.folder_title = folder_title
-        getcontext().prec = 2_000_000_000
+        getcontext().prec = 2_000_000
 
     @staticmethod
     def create_darkzip_file(file_obj):
@@ -151,7 +151,7 @@ class Archiver:
 
         chances = dict()
         for item in counter:
-            float_number = round(counter[item] / all_counts, 20)
+            float_number = round(counter[item] / all_counts, 6)
             chances[item] = Decimal(str(float_number))
 
         base_distance = [Decimal('0'), Decimal('1')]
@@ -183,6 +183,12 @@ class Archiver:
         data_out["interval"] = str((next_dist[0] + next_dist[1]) / 2)
 
         json.dump(data_out, open(file_path, "w", encoding="utf-8"))
+
+    @staticmethod
+    def binary_coding(file_path=os.path.join("out", "test_dirs.dzf")):
+        byte_ls = json.load(open(file_path, "r"))
+        counter = Counter(byte_ls)
+
 
     @staticmethod
     def find_dist_for_interval(distance, interval, unic_byte_ls, prev_byte_ls,
