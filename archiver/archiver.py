@@ -17,7 +17,7 @@ class Archiver:
     def __init__(self, folder_path, folder_title):
         self.folder_path = folder_path
         self.folder_title = folder_title
-        getcontext().prec = 1000
+        getcontext().prec = 2_000_000_000
 
     @staticmethod
     def create_darkzip_file(file_obj):
@@ -151,7 +151,7 @@ class Archiver:
 
         chances = dict()
         for item in counter:
-            float_number = round(counter[item] / all_counts, 3)
+            float_number = round(counter[item] / all_counts, 20)
             chances[item] = Decimal(str(float_number))
 
         base_distance = [Decimal('0'), Decimal('1')]
@@ -185,6 +185,27 @@ class Archiver:
         json.dump(data_out, open(file_path, "w", encoding="utf-8"))
 
     @staticmethod
+    def find_dist_for_interval(distance, interval, unic_byte_ls, prev_byte_ls,
+                               comm_chances, chances):
+        left_bound = 0
+        right_bound = len(unic_byte_ls)
+
+        while right_bound - left_bound >= 0:
+            mid = left_bound + (right_bound - left_bound) // 2
+            byte = unic_byte_ls[mid]
+            new_dist = Archiver.next_interval_code(distance, prev_byte_ls[byte], byte, comm_chances, chances)
+
+            if new_dist[0] <= interval < new_dist[1]:
+                return byte, new_dist
+
+            if interval < new_dist[0]:
+                right_bound = mid - 1
+            elif interval >= new_dist[1]:
+                left_bound = mid + 1
+
+        return None, None
+
+    @staticmethod
     def interval_decoding(file_path):
         json_data = json.load(open(file_path, "r"))
 
@@ -211,15 +232,25 @@ class Archiver:
         interval = Decimal(json_data["interval"])
         source_bytes = []
         while byte_count != 0:
-            for byte in unic_byte_ls:
-                new_dist = Archiver.next_interval_code(base_dist, prev_byte_ls[byte], byte, comm_chances, chances)
-                if new_dist[0] < interval < new_dist[1]:
-                    # next_dist = new_dist
-                    source_bytes.append(byte)
-                    # code = (code - RangeLow(x)) / (RangeHigh(x) - RangeLow(x))
-                    interval = (interval - new_dist[0]) / (new_dist[1] - new_dist[0])
-                    break
+            byte, new_dist = Archiver.find_dist_for_interval(
+                base_dist, interval, unic_byte_ls, prev_byte_ls,
+                comm_chances, chances
+            )
 
+            if byte is None:
+                break
+            source_bytes.append(byte)
+            interval = (interval - new_dist[0]) / (new_dist[1] - new_dist[0])
+
+            # for byte in unic_byte_ls:
+            #     new_dist = Archiver.next_interval_code(base_dist, prev_byte_ls[byte], byte, comm_chances, chances)
+            #     if new_dist[0] <= interval < new_dist[1]:
+            #         # next_dist = new_dist
+            #         source_bytes.append(byte)
+            #         # code = (code - RangeLow(x)) / (RangeHigh(x) - RangeLow(x))
+            #         interval = (interval - new_dist[0]) / (new_dist[1] - new_dist[0])
+            #         break
+            #
             byte_count -= 1
 
         json.dump(source_bytes, open(file_path, "w", encoding="utf-8"))
