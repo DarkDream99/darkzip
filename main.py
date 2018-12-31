@@ -2,6 +2,7 @@ from archiver.archiver import Archiver
 from archiver.haffman_tree import HaffmanTree
 from archiver.haffman_table import HaffmanTable
 from archiver.haffman_coder import HaffmanEncoder
+from archiver.haffman_tree import END_SYMBOL
 from archiver.byter import Byter
 from collections import Counter
 
@@ -52,8 +53,25 @@ def test_haffman():
     encoded_bytes = byter.convert_to_bytes(encoded_str)
     print(encoded_bytes)
 
+    encoded_haffman_tree = haffman_tree.tree_code()
+    print(encoded_haffman_tree)
+
+    print(END_SYMBOL)
+
+    with open("encode.txt", "wb+") as file:
+        for byte in encoded_haffman_tree:
+            file.write(byte.to_bytes(1, "little"))
+
+        for byte in END_SYMBOL:
+            file.write(byte.to_bytes(1, "little"))
+
+        for byte in encoded_bytes:
+            file.write(byte.to_bytes(1, "little"))
+
 
 test_haffman()
+
+# print("шпр".find("kр"))
 
 # print(int("100", 2))
 

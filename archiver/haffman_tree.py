@@ -1,6 +1,10 @@
 from queue import PriorityQueue
 
 
+SEPARATOR = (0).to_bytes(1, "little")
+END_SYMBOL = (2).to_bytes(1, "little") + (2).to_bytes(1, "little") + (8).to_bytes(1, "little")
+
+
 class HaffmanNode(object):
 
     def __init__(self, count, symbol, parent=None):
@@ -17,6 +21,9 @@ class HaffmanNode(object):
         if other is None:
             return False
         return self.symbol == other.symbol
+
+    def __contains__(self, other_node):
+        return self.symbol.find(other_node.symbol) != -1
 
     def is_leaf(self):
         return (self.left_child is None) and (self.right_child is None)
@@ -56,8 +63,53 @@ class HaffmanTree(object):
     def leaves(self):
         return self.haffman_leaves
 
-    def DFS(self):
-        selected_nodes = []
-        colors = ['w'] * len(self.frequency)
+    def tree_code(self):
+        coded_tree_str = b""
+        prev_node = None
 
-        pass
+        is_upping = False
+        for node in self.dfs():
+            if prev_node is None:
+                prev_node = node
+                continue
+            # move left
+            if prev_node.left_child is not None and prev_node.left_child == node:
+                coded_tree_str += b"D"
+                if node.is_leaf():
+                    coded_tree_str += bytes(node.symbol, encoding="utf-8")
+                coded_tree_str += SEPARATOR
+            # move right
+            elif prev_node.right_child is not None and prev_node.right_child == node:
+                coded_tree_str += b"D"
+                if node.is_leaf():
+                    coded_tree_str += bytes(node.symbol, encoding="utf-8")
+                coded_tree_str += SEPARATOR
+            # move up
+            else:
+                coded_tree_str += b"U"
+                if node.is_leaf():
+                    coded_tree_str += bytes(node.symbol, encoding="utf-8")
+                coded_tree_str += SEPARATOR
+
+            prev_node = node
+
+        return coded_tree_str
+
+    def dfs(self):
+        selected_nodes = [self.head]
+        used_nodes_symbols = set()
+        used_nodes_symbols.add(self.head.symbol)
+
+        while len(selected_nodes) != 0:
+            node = selected_nodes.pop()
+            yield node
+
+            next_node = node.right_child
+            if next_node is not None and next_node.symbol not in used_nodes_symbols:
+                used_nodes_symbols.add(next_node.symbol)
+                selected_nodes.append(next_node)
+            next_node = node.left_child
+            if next_node is not None and next_node.symbol not in used_nodes_symbols:
+                used_nodes_symbols.add(next_node.symbol)
+                selected_nodes.append(next_node)
+
