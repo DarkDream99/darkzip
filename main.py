@@ -1,6 +1,7 @@
 from archiver.archiver import Archiver
 from archiver.haffman_tree import HaffmanTree
 from archiver.haffman_table import HaffmanTable
+from archiver.haffman_coder import HaffmanEncoder
 from collections import Counter
 
 
@@ -42,7 +43,10 @@ def test_haffman():
     haffman_tree = HaffmanTree(counter)
     leaves = haffman_tree.leaves
     haffman_table = HaffmanTable(leaves)
-    print(haffman_table['д'])
+
+    encoder = HaffmanEncoder(haffman_table, symbols)
+    encoded_str = encoder.encode()
+    print(encoded_str)
 
 
 test_haffman()

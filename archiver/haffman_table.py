@@ -26,6 +26,9 @@ class HaffmanTable(object):
     def __getitem__(self, symbol):
         return self.haffman_code(symbol)
 
+    def __contains__(self, symbol):
+        return symbol in self.haffman_codes
+
     def haffman_code(self, symbol):
         if symbol in self.haffman_codes:
             return self.haffman_codes[symbol]
