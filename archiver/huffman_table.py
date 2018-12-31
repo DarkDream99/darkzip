@@ -1,4 +1,4 @@
-class HaffmanTable(object):
+class HuffmanTable(object):
 
     def __init__(self, haffman_leaves):
         """
@@ -10,26 +10,26 @@ class HaffmanTable(object):
 
     def _build(self):
         for symbol in self.haffman_leaves:
-            haffman_node = self.haffman_leaves[symbol]
+            huffman_node = self.haffman_leaves[symbol]
             self.haffman_codes[symbol] = ""
-            prev_node = haffman_node
+            prev_node = huffman_node
             while prev_node.parent is not None:
                 next_node = prev_node.parent
                 if next_node.left_child == prev_node:
-                    self.haffman_codes[haffman_node.symbol] = \
+                    self.haffman_codes[huffman_node.symbol] = \
                         '0' + self.haffman_codes[symbol]
                 else:
-                    self.haffman_codes[haffman_node.symbol] = \
+                    self.haffman_codes[huffman_node.symbol] = \
                         '1' + self.haffman_codes[symbol]
                 prev_node = next_node
 
     def __getitem__(self, symbol):
-        return self.haffman_code(symbol)
+        return self.huffman_code(symbol)
 
     def __contains__(self, symbol):
         return symbol in self.haffman_codes
 
-    def haffman_code(self, symbol):
+    def huffman_code(self, symbol):
         if symbol in self.haffman_codes:
             return self.haffman_codes[symbol]
         raise ValueError(f"Symbol: {symbol} is not a key of dict")

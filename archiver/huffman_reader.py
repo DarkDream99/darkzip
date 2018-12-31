@@ -2,7 +2,7 @@ SEPARATOR = (0).to_bytes(1, "little")
 END_SYMBOL = (2).to_bytes(1, "little") + (2).to_bytes(1, "little") + (8).to_bytes(1, "little")
 
 
-class HaffmanReader(object):
+class HuffmanReader(object):
 
     def __init__(self, source_bytes):
         next_ind, self.haffman_tree_bytes = self._read_haffman_tree(source_bytes)

@@ -1,9 +1,9 @@
 from archiver.archiver import Archiver
-from archiver.haffman_tree import HaffmanTree
-from archiver.haffman_table import HaffmanTable
-from archiver.haffman_coder import HaffmanEncoder
-from archiver.haffman_reader import HaffmanReader
-from archiver.haffman_reader import END_SYMBOL
+from archiver.huffman_tree import HuffmanTree
+from archiver.huffman_table import HuffmanTable
+from archiver.huffman_coder import HuffmanEncoder
+from archiver.huffman_reader import HuffmanReader
+from archiver.huffman_reader import END_SYMBOL
 from archiver.byter import Byter
 from collections import Counter
 
@@ -36,18 +36,18 @@ def run():
         #     print(e)
 
 
-def test_haffman_code():
+def test_huffman_code():
     symbols = []
     with open("test.txt", "r", encoding="utf-8") as file:
         for line in file:
             symbols.extend(line)
 
     counter = Counter(symbols)
-    haffman_tree = HaffmanTree(counter)
+    haffman_tree = HuffmanTree(counter)
     leaves = haffman_tree.leaves
-    haffman_table = HaffmanTable(leaves)
+    haffman_table = HuffmanTable(leaves)
 
-    encoder = HaffmanEncoder(haffman_table, symbols)
+    encoder = HuffmanEncoder(haffman_table, symbols)
     encoded_str = encoder.encode()
 
     byter = Byter()
@@ -72,6 +72,7 @@ def test_haffman_code():
 
 # test_haffman_code()
 
+
 def test_huffman_decode():
     file_bytes = b""
     with open("encode.txt", "rb") as file:
@@ -80,11 +81,20 @@ def test_huffman_decode():
             file_bytes += next_byte
             next_byte = file.read(1)
 
-    haffman_reader = HaffmanReader(file_bytes)
+    haffman_reader = HuffmanReader(file_bytes)
     print("Tree:", haffman_reader.tree_bytes)
     print("Code:", haffman_reader.code_bytes)
 
+    haffman_tree = HuffmanTree(haffman_reader.tree_bytes)
+    print(haffman_tree)
+
+
 test_huffman_decode()
+
+# a = [b'a', b'b', b'c']
+# for b in a:
+#     print(b)
+
 
 # a = b'asdfdgag'
 # print(a[0].to_bytes(1, "little"))

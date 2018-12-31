@@ -1,4 +1,4 @@
-class HaffmanEncoder(object):
+class HuffmanEncoder(object):
 
     def __init__(self, haffman_table, source_text):
         self.haffman_table = haffman_table
