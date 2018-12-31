@@ -2,6 +2,7 @@ from archiver.archiver import Archiver
 from archiver.huffman_tree import HuffmanTree
 from archiver.huffman_table import HuffmanTable
 from archiver.huffman_coder import HuffmanEncoder
+from archiver.huffman_decoder import HuffmanDecoder
 from archiver.huffman_reader import HuffmanReader
 from archiver.huffman_reader import END_SYMBOL
 from archiver.byter import Byter
@@ -36,6 +37,25 @@ def run():
         #     print(e)
 
 
+def convert_to_225(num):
+    num_225 = []
+    while num > 0:
+        num_225.append(num % 225)
+        num //= 225
+    return num_225
+
+
+def convert_from_255(nums):
+    res = 0
+    power = 0
+
+    for i, num in enumerate(nums):
+        res += num * 225 ** power
+        power += 1
+
+    return res
+
+
 def test_huffman_code():
     symbols = []
     with open("test.txt", "r", encoding="utf-8") as file:
@@ -59,8 +79,16 @@ def test_huffman_code():
 
     print(END_SYMBOL)
 
+    count_bytes = convert_to_225(len(encoded_str))
+
     with open("encode.txt", "wb+") as file:
         for byte in encoded_haffman_tree:
+            file.write(byte.to_bytes(1, "little"))
+
+        for byte in END_SYMBOL:
+            file.write(byte.to_bytes(1, "little"))
+
+        for byte in count_bytes:
             file.write(byte.to_bytes(1, "little"))
 
         for byte in END_SYMBOL:
@@ -70,7 +98,7 @@ def test_huffman_code():
             file.write(byte.to_bytes(1, "little"))
 
 
-# test_haffman_code()
+test_huffman_code()
 
 
 def test_huffman_decode():
@@ -85,10 +113,19 @@ def test_huffman_decode():
     print("Tree:", huffman_reader.tree_bytes)
     print("Code:", huffman_reader.code_bytes)
 
-    haffman_tree = HuffmanTree(huffman_reader.tree_bytes)
+    huffman_tree = HuffmanTree(huffman_reader.tree_bytes)
     byter = Byter()
-    bit_str = byter.convert_to_bit_str(huffman_reader.code_bytes)
-    print(bit_str)
+
+    bit_str_bytes = huffman_reader.count_bytes
+    bit_str = byter.convert_to_bit_str(
+        huffman_reader.code_bytes,
+        convert_from_255(bit_str_bytes)
+    )
+
+    huffman_decoder = HuffmanDecoder(huffman_tree)
+    source_str = huffman_decoder.decode(bit_str)
+    with open("decode.txt", "w+", encoding="utf-8") as file:
+        file.writelines(source_str)
 
 
 test_huffman_decode()
@@ -105,7 +142,6 @@ test_huffman_decode()
 
 # print(int("100", 2))
 
-# a = (164).to_bytes(1, "little")
 # print(a)
 # print(bytes('DUDD{', encoding="utf-8"))
 # with open("test.txt", "wb+") as file:
