@@ -81,12 +81,14 @@ def test_huffman_decode():
             file_bytes += next_byte
             next_byte = file.read(1)
 
-    haffman_reader = HuffmanReader(file_bytes)
-    print("Tree:", haffman_reader.tree_bytes)
-    print("Code:", haffman_reader.code_bytes)
+    huffman_reader = HuffmanReader(file_bytes)
+    print("Tree:", huffman_reader.tree_bytes)
+    print("Code:", huffman_reader.code_bytes)
 
-    haffman_tree = HuffmanTree(haffman_reader.tree_bytes)
-    print(haffman_tree)
+    haffman_tree = HuffmanTree(huffman_reader.tree_bytes)
+    byter = Byter()
+    bit_str = byter.convert_to_bit_str(huffman_reader.code_bytes)
+    print(bit_str)
 
 
 test_huffman_decode()
