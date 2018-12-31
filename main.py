@@ -2,6 +2,7 @@ from archiver.archiver import Archiver
 from archiver.haffman_tree import HaffmanTree
 from archiver.haffman_table import HaffmanTable
 from archiver.haffman_coder import HaffmanEncoder
+from archiver.byter import Byter
 from collections import Counter
 
 
@@ -46,10 +47,16 @@ def test_haffman():
 
     encoder = HaffmanEncoder(haffman_table, symbols)
     encoded_str = encoder.encode()
-    print(encoded_str)
+
+    byter = Byter()
+    encoded_bytes = byter.convert_to_bytes(encoded_str)
+    print(encoded_bytes)
 
 
 test_haffman()
+
+# print(int("100", 2))
+
 # a = (164).to_bytes(1, "little")
 # print(a)
 # print(bytes('DUDD{', encoding="utf-8"))
