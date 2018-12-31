@@ -1,8 +1,6 @@
 from queue import PriorityQueue
 
-
-SEPARATOR = (0).to_bytes(1, "little")
-END_SYMBOL = (2).to_bytes(1, "little") + (2).to_bytes(1, "little") + (8).to_bytes(1, "little")
+from .haffman_reader import SEPARATOR
 
 
 class HaffmanNode(object):
