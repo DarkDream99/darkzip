@@ -10,17 +10,29 @@ NOT_USE = "-"
 def run():
     command = NOT_USE
     runner = Runner()
+    settings = dict()
 
     while command != EXIT:
         line = input(">> ")
-        params = line.split(' ')
+        params = line.split(maxsplit=1)
 
         if params[0] == CODE:
-            path = params[1]
-            runner.encode_folder(path)
+            modules = params[1].split('=')
+            for ind, m in enumerate(modules):
+                if m.strip() == "path":
+                    settings["path"] = modules[ind + 1].strip()
+
+            runner.encode_folder(**settings)
 
         if params[0] == DECODE:
-            runner.decode_folder()
+            modules = params[1].split('=')
+            for ind, m in enumerate(modules):
+                if m.strip() == "path":
+                    settings["path"] = modules[ind + 1].strip()
+                if m.strip() == "out":
+                    settings["out"] = modules[ind + 1].strip()
+
+            runner.decode_folder(**settings)
 
 
 run()

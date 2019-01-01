@@ -16,18 +16,23 @@ class Runner(object):
 
     def __init__(self):
         self.dark_archiver = Archiver(None, None)
+        self.folder_encode_path = "test_dirs"
+        self.folder_encode_out_path = None
+        self.folder_decode_path = "out/test_dirs.dzf"
+        self.folder_decode_out_path = "dearchive"
 
     def encode_file(self, file_path):
         ...
 
-    def decode_file(self, file_path):
-        ...
+    def encode_folder(self, **kwargs):
+        if "folder_path" in kwargs:
+            self.folder_encode_path = kwargs["folder_path"]
+        if "folder_path_out" in kwargs:
+            self.folder_encode_out_path = kwargs["folder_path_out"]
 
-    def encode_folder(self, folder_path):
-        self.dark_archiver.archive_folder(folder_path)
-
+        folder_title = self.dark_archiver.archive_folder(self.folder_encode_path)[0]
         symbols = []
-        with open("out/test_dirs.dzf", "r", encoding="utf-8") as file:
+        with open(os.path.join("out", folder_title + ".dzf"), "r", encoding="utf-8") as file:
             for line in file:
                 symbols.extend(line)
 
@@ -44,15 +49,23 @@ class Runner(object):
         encoded_huffman_tree = huffman_tree.tree_code()
         encoded_count_bytes = self._convert_to_225(len(encoded_str))
 
-        out_file_path = os.path.join("out", "test_dirs.dzf")
+        if self.folder_encode_out_path is None:
+            out_file_path = os.path.join("out", self.folder_encode_path + ".dzf")
+        else:
+            out_file_path = os.path.join(self.folder_encode_out_path, folder_title + ".dzf")
         HuffmanWriter.write(
             out_file_path, encoded_bytes,
             encoded_huffman_tree, encoded_count_bytes
         )
 
-    def decode_folder(self, folder_path="out/test_dirs.dzf"):
+    def decode_folder(self, **kwargs):
+        if "folder_path" in kwargs:
+            self.folder_decode_path = kwargs["folder_path"]
+        if "folder_path_out" in kwargs:
+            self.folder_decode_out_path = kwargs["folder_path_out"]
+
         file_bytes = b""
-        with open(folder_path, "rb") as file:
+        with open(self.folder_decode_path, "rb") as file:
             next_byte = file.read(1)
             while next_byte:
                 file_bytes += next_byte
@@ -73,7 +86,7 @@ class Runner(object):
 
         folder_json = json.loads(source_str)
 
-        self.dark_archiver.dearchive_folder(folder_json, "dearchive")
+        self.dark_archiver.dearchive_folder(folder_json, self.folder_encode_out_path)
         with open("out/test_dirs.dzf", "w+", encoding="utf-8") as file:
             file.writelines(source_str)
 

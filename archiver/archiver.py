@@ -17,7 +17,7 @@ class Archiver:
         zip_path = os.path.join("out", file_obj.title[:file_obj.title.rindex('.')] + ".dzf")
         with open(zip_path, "w", encoding="utf-8") as file:
             str_data = json.dumps(file_obj.__dict__)
-            file.write(str_data)
+            file.writelines(str_data)
 
     @staticmethod
     def archive_file(file, file_name):
@@ -58,8 +58,8 @@ class Archiver:
 
     @staticmethod
     def archive_folder(folder_path):
-        folder_title = Archiver._dir_path(folder_path)[-1]
-        folder_obj = DarkFolder([], [], folder_title)
+        source_folder_title = Archiver._dir_path(folder_path)[-1]
+        folder_obj = DarkFolder([], [], source_folder_title)
         dir_tree = os.walk(folder_path)
 
         for path, folder_titles, file_titles in dir_tree:
@@ -85,7 +85,7 @@ class Archiver:
                 folder_ptr.files.append(compressed_file)
 
         Archiver.create_darkzip_folder(folder_obj)
-        return folder_obj
+        return source_folder_title, folder_obj
 
     @staticmethod
     def dearchive_folder(folder, path_out):
