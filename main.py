@@ -1,4 +1,7 @@
+import json
+
 from archiver.archiver import Archiver
+from archiver.dfolder import DarkFolder
 from archiver.huffman_tree import HuffmanTree
 from archiver.huffman_table import HuffmanTable
 from archiver.huffman_coder import HuffmanEncoder
@@ -13,28 +16,6 @@ CODE = "c"
 DECODE = "d"
 EXIT = "e"
 NOT_USE = "-"
-
-
-def run():
-    command = NOT_USE
-    dark_archiver = Archiver(None, None)
-    while command != EXIT:
-        line = input(">> ")
-        params = line.split(' ')
-
-        # try:
-        if params[0] == CODE:
-            path = params[1]
-            title = params[2]
-            dark_archiver.archive_folder(path, title)
-            dark_archiver.delta_coding()
-            dark_archiver.interval_coding()
-
-        if params[0] == DECODE:
-            file_path = params[1]
-            dark_archiver.interval_decoding(file_path)
-        # except Exception as e:
-        #     print(e)
 
 
 def convert_to_225(num):
@@ -56,102 +37,82 @@ def convert_from_255(nums):
     return res
 
 
-def test_huffman_code():
-    symbols = []
-    with open("test.txt", "r", encoding="utf-8") as file:
-        for line in file:
-            symbols.extend(line)
+def run():
+    command = NOT_USE
+    dark_archiver = Archiver(None, None)
+    while command != EXIT:
+        line = input(">> ")
+        params = line.split(' ')
 
-    counter = Counter(symbols)
-    haffman_tree = HuffmanTree(counter)
-    leaves = haffman_tree.leaves
-    haffman_table = HuffmanTable(leaves)
+        # try:
+        if params[0] == CODE:
+            path = params[1]
+            title = params[2]
+            dark_archiver.archive_folder(path, title)
+            # dark_archiver.delta_coding()
 
-    encoder = HuffmanEncoder(haffman_table, symbols)
-    encoded_str = encoder.encode()
+            symbols = []
+            with open("out/test_dirs.dzf", "r", encoding="utf-8") as file:
+                for line in file:
+                    symbols.extend(line)
 
-    byter = Byter()
-    encoded_bytes = byter.convert_to_bytes(encoded_str)
-    print(encoded_bytes)
+            counter = Counter(symbols)
+            haffman_tree = HuffmanTree(counter)
+            leaves = haffman_tree.leaves
+            haffman_table = HuffmanTable(leaves)
 
-    encoded_haffman_tree = haffman_tree.tree_code()
-    print(encoded_haffman_tree)
+            encoder = HuffmanEncoder(haffman_table, symbols)
+            encoded_str = encoder.encode()
 
-    print(END_SYMBOL)
+            byter = Byter()
+            encoded_bytes = byter.convert_to_bytes(encoded_str)
+            encoded_haffman_tree = haffman_tree.tree_code()
+            count_bytes = convert_to_225(len(encoded_str))
 
-    count_bytes = convert_to_225(len(encoded_str))
+            with open("out/test_dirs.dzf", "wb+") as file:
+                for byte in encoded_haffman_tree:
+                    file.write(byte.to_bytes(1, "little"))
 
-    with open("encode.txt", "wb+") as file:
-        for byte in encoded_haffman_tree:
-            file.write(byte.to_bytes(1, "little"))
+                for byte in END_SYMBOL:
+                    file.write(byte.to_bytes(1, "little"))
 
-        for byte in END_SYMBOL:
-            file.write(byte.to_bytes(1, "little"))
+                for byte in count_bytes:
+                    file.write(byte.to_bytes(1, "little"))
 
-        for byte in count_bytes:
-            file.write(byte.to_bytes(1, "little"))
+                for byte in END_SYMBOL:
+                    file.write(byte.to_bytes(1, "little"))
 
-        for byte in END_SYMBOL:
-            file.write(byte.to_bytes(1, "little"))
+                for byte in encoded_bytes:
+                    file.write(byte.to_bytes(1, "little"))
 
-        for byte in encoded_bytes:
-            file.write(byte.to_bytes(1, "little"))
+        if params[0] == DECODE:
+            # file_path = params[1]
+            file_bytes = b""
+            with open("out/test_dirs.dzf", "rb") as file:
+                next_byte = file.read(1)
+                while next_byte:
+                    file_bytes += next_byte
+                    next_byte = file.read(1)
 
+            huffman_reader = HuffmanReader(file_bytes)
 
-test_huffman_code()
+            huffman_tree = HuffmanTree(huffman_reader.tree_bytes)
+            byter = Byter()
 
+            bit_str_bytes = huffman_reader.count_bytes
+            bit_str = byter.convert_to_bit_str(
+                huffman_reader.code_bytes,
+                convert_from_255(bit_str_bytes)
+            )
 
-def test_huffman_decode():
-    file_bytes = b""
-    with open("encode.txt", "rb") as file:
-        next_byte = file.read(1)
-        while next_byte:
-            file_bytes += next_byte
-            next_byte = file.read(1)
+            huffman_decoder = HuffmanDecoder(huffman_tree)
+            source_str = huffman_decoder.decode(bit_str)
 
-    huffman_reader = HuffmanReader(file_bytes)
-    print("Tree:", huffman_reader.tree_bytes)
-    print("Code:", huffman_reader.code_bytes)
+            folder_json = json.loads(source_str)
 
-    huffman_tree = HuffmanTree(huffman_reader.tree_bytes)
-    byter = Byter()
-
-    bit_str_bytes = huffman_reader.count_bytes
-    bit_str = byter.convert_to_bit_str(
-        huffman_reader.code_bytes,
-        convert_from_255(bit_str_bytes)
-    )
-
-    huffman_decoder = HuffmanDecoder(huffman_tree)
-    source_str = huffman_decoder.decode(bit_str)
-    with open("decode.txt", "w+", encoding="utf-8") as file:
-        file.writelines(source_str)
-
-
-test_huffman_decode()
-
-# a = [b'a', b'b', b'c']
-# for b in a:
-#     print(b)
+            dark_archiver.dearchive_folder(folder_json, "dearchive")
+            with open("out/test_dirs.dzf", "w+", encoding="utf-8") as file:
+                file.writelines(source_str)
 
 
-# a = b'asdfdgag'
-# print(a[0].to_bytes(1, "little"))
-
-# print("шпр".find("kр"))
-
-# print(int("100", 2))
-
-# print(a)
-# print(bytes('DUDD{', encoding="utf-8"))
-# with open("test.txt", "wb+") as file:
-#     file.write(bytes('Ъ', encoding="utf-8"))
-#     file.write(bytes('\'', encoding="utf-8"))
-#
-# with open("test.txt", "rb") as file:
-#     a = file.read(2)
-#     print(a == bytes('Ъ', encoding="utf-8"))
-#     a = file.read(1)
-#     print(a == b'\'')
-#
-# print(bin(10)[2:])
+run()

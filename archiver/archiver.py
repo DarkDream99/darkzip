@@ -28,13 +28,11 @@ class Archiver:
 
     @staticmethod
     def archive_file(file, file_name):
-        byte_arr = []
-        bt = file.read(1)
-        while (bt):
-            byte_arr.append(bt[0])
-            bt = file.read(1)
+        strings = ""
+        for line in file:
+            strings += line
 
-        file_obj = DarkFile(byte_arr, file_name)
+        file_obj = DarkFile(strings, file_name)
         return file_obj
 
     @staticmethod
@@ -43,10 +41,8 @@ class Archiver:
             zip_file_obj = json.load(zip_file)
 
         path = os.path.join("decompress", zip_file_obj["title"])
-        with open(path, "wb") as file:
-            for byte_code in zip_file_obj["byte_arr"]:
-                byte_str = (byte_code).to_bytes(1, "little")
-                file.write(byte_str)
+        with open(path, "w+", encoding="utf-8") as file:
+            file.writelines(zip_file_obj["text"])
 
     @staticmethod
     def _dir_path(path):
@@ -63,9 +59,9 @@ class Archiver:
 
     @staticmethod
     def create_darkzip_folder(compressed_folder):
-        json_folder = jsonpickle.encode(compressed_folder)
-        with open(os.path.join("./out", compressed_folder.title + ".dzf"), "w+") as file:
-            file.write(json_folder)
+        json_folder = json.dumps(compressed_folder.json_object, ensure_ascii=False)  # jsonpickle.encode(compressed_folder)
+        with open(os.path.join("./out", compressed_folder.title + ".dzf"), "w+", encoding="utf-8") as file:
+            file.writelines(json_folder)
 
     @staticmethod
     def archive_folder(folder_path, folder_title):
@@ -90,7 +86,7 @@ class Archiver:
                 folder_ptr.folders.append(DarkFolder([], [], folder_title))
 
             for file_title in file_titles:
-                with open(os.path.join(path, file_title), "rb") as file:
+                with open(os.path.join(path, file_title), "r", encoding="utf-8") as file:
                     compressed_file = Archiver.archive_file(file, file_title)
                 folder_ptr.files.append(compressed_file)
 
@@ -99,18 +95,16 @@ class Archiver:
 
     @staticmethod
     def dearchive_folder(folder, path_out):
-        folder_path = os.path.join(path_out, folder.title)
+        folder_path = os.path.join(path_out, folder["title"])
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        for file in folder.files:
-            file_path = os.path.join(folder_path, file.title)
-            with open(file_path, "wb") as hfile:
-                for byte_code in file.byte_arr:
-                    byte_str = (byte_code).to_bytes(1, "little")
-                    hfile.write(byte_str)
+        for file in folder["files"]:
+            file_path = os.path.join(folder_path, file["title"])
+            with open(file_path, "w+", encoding="utf-8") as hfile:
+                hfile.writelines(file["text"])
 
-        for next_folder in folder.folders:
+        for next_folder in folder["folders"]:
             next_out_path = os.path.join(folder_path)
             Archiver.dearchive_folder(next_folder, next_out_path)
 
@@ -183,12 +177,6 @@ class Archiver:
         data_out["interval"] = str((next_dist[0] + next_dist[1]) / 2)
 
         json.dump(data_out, open(file_path, "w", encoding="utf-8"))
-
-    @staticmethod
-    def binary_coding(file_path=os.path.join("out", "test_dirs.dzf")):
-        byte_ls = json.load(open(file_path, "r"))
-        counter = Counter(byte_ls)
-
 
     @staticmethod
     def find_dist_for_interval(distance, interval, unic_byte_ls, prev_byte_ls,
