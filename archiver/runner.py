@@ -1,13 +1,13 @@
 import json
+import os
 
 from archiver.archiver import Archiver
-from archiver.dfolder import DarkFolder
 from archiver.huffman_tree import HuffmanTree
 from archiver.huffman_table import HuffmanTable
 from archiver.huffman_coder import HuffmanEncoder
 from archiver.huffman_decoder import HuffmanDecoder
 from archiver.huffman_reader import HuffmanReader
-from archiver.huffman_reader import END_SYMBOL
+from archiver.huffman_writer import HuffmanWriter
 from archiver.byter import Byter
 from collections import Counter
 
@@ -44,21 +44,11 @@ class Runner(object):
         encoded_huffman_tree = huffman_tree.tree_code()
         encoded_count_bytes = self._convert_to_225(len(encoded_str))
 
-        with open("out/test_dirs.dzf", "wb+") as file:
-            for byte in encoded_huffman_tree:
-                file.write(byte.to_bytes(1, "little"))
-
-            for byte in END_SYMBOL:
-                file.write(byte.to_bytes(1, "little"))
-
-            for byte in encoded_count_bytes:
-                file.write(byte.to_bytes(1, "little"))
-
-            for byte in END_SYMBOL:
-                file.write(byte.to_bytes(1, "little"))
-
-            for byte in encoded_bytes:
-                file.write(byte.to_bytes(1, "little"))
+        out_file_path = os.path.join("out", "test_dirs.dzf")
+        HuffmanWriter.write(
+            out_file_path, encoded_bytes,
+            encoded_huffman_tree, encoded_count_bytes
+        )
 
     def decode_folder(self, folder_path="out/test_dirs.dzf"):
         file_bytes = b""
@@ -69,7 +59,6 @@ class Runner(object):
                 next_byte = file.read(1)
 
         huffman_reader = HuffmanReader(file_bytes)
-
         huffman_tree = HuffmanTree(huffman_reader.tree_bytes)
         byter = Byter()
 
