@@ -13,3 +13,7 @@ class DarkFile:
         json_ob["title"] = self.title
 
         return json_ob
+
+    @property
+    def name(self):
+        return self.title[:self.title.rindex(".")]

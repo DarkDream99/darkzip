@@ -20,12 +20,18 @@ class Archiver:
             file.writelines(str_data)
 
     @staticmethod
-    def archive_file(file, file_name):
-        strings = ""
-        for line in file:
-            strings += line
+    def archive_file(file_path, create_mode=False):
+        file_title = Archiver._dir_path(file_path)[-1]
 
-        file_obj = DarkFile(strings, file_name)
+        strings = ""
+        with open(file_path, "r", encoding="utf-8") as file:
+            for line in file:
+                strings += line
+
+        file_obj = DarkFile(strings, file_title)
+        base_folder = DarkFolder([file_obj], [], "")
+        if create_mode:
+            Archiver.create_darkzip_folder(base_folder, file_obj.name)
         return file_obj
 
     @staticmethod
@@ -51,9 +57,12 @@ class Archiver:
         return dirs
 
     @staticmethod
-    def create_darkzip_folder(compressed_folder):
+    def create_darkzip_folder(compressed_folder, title=None):
         json_folder = json.dumps(compressed_folder.json_object, ensure_ascii=False)
-        with open(os.path.join("./out", compressed_folder.title + ".dzf"), "w+", encoding="utf-8") as file:
+        file_title = compressed_folder.title + ".dzf"
+        if title is not None:
+            file_title = title + ".dzf"
+        with open(os.path.join("./out", file_title), "w+", encoding="utf-8") as file:
             file.writelines(json_folder)
 
     @staticmethod
@@ -80,8 +89,7 @@ class Archiver:
                 folder_ptr.folders.append(DarkFolder([], [], folder_title))
 
             for file_title in file_titles:
-                with open(os.path.join(path, file_title), "r", encoding="utf-8") as file:
-                    compressed_file = Archiver.archive_file(file, file_title)
+                compressed_file = Archiver.archive_file(os.path.join(path, file_title))
                 folder_ptr.files.append(compressed_file)
 
         Archiver.create_darkzip_folder(folder_obj)
@@ -90,7 +98,7 @@ class Archiver:
     @staticmethod
     def dearchive_folder(folder, path_out):
         folder_path = os.path.join(path_out, folder["title"])
-        if not os.path.exists(folder_path):
+        if not os.path.exists(folder_path) and folder["title"] != "":
             os.makedirs(folder_path)
 
         for file in folder["files"]:

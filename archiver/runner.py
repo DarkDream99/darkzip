@@ -19,20 +19,43 @@ class Runner(object):
         self.folder_encode_path = "test_dirs"
         self.folder_encode_out_path = None
         self.folder_decode_path = "out/test_dirs.dzf"
-        self.folder_decode_out_path = "dearchive"
+        self.folder_decode_out_path = "decode"
 
-    def encode_file(self, file_path):
-        ...
+        self.file_encode_path = "test.txt"
+
+    def encode_file(self, **kwargs):
+        if "file_encode_path" in kwargs:
+            self.file_encode_path = kwargs["file_encode_path"]
+        if "folder_encode_out_path" in kwargs:
+            self.folder_encode_out_path = kwargs["folder_encode_out_path"]
+
+        file_name = self.dark_archiver.archive_file(self.file_encode_path, create_mode=True).name
+        if self.folder_encode_out_path is None:
+            out_file_path = os.path.join(os.path.dirname(self.file_encode_path), file_name + ".dzf")
+        else:
+            out_file_path = os.path.join(self.folder_encode_out_path, file_name + ".dzf")
+
+        file_path = os.path.join("out", file_name + ".dzf")
+        self._encode(file_path, out_file_path)
 
     def encode_folder(self, **kwargs):
-        if "folder_path" in kwargs:
-            self.folder_encode_path = kwargs["folder_path"]
-        if "folder_path_out" in kwargs:
-            self.folder_encode_out_path = kwargs["folder_path_out"]
+        if "folder_encode_path" in kwargs:
+            self.folder_encode_path = kwargs["folder_encode_path"]
+        if "folder_encode_out_path" in kwargs:
+            self.folder_encode_out_path = kwargs["folder_encode_out_path"]
 
         folder_title = self.dark_archiver.archive_folder(self.folder_encode_path)[0]
+        file_path = os.path.join("out", folder_title + ".dzf")
+
+        if self.folder_encode_out_path is None:
+            out_file_path = os.path.join(self.folder_encode_path + ".dzf")
+        else:
+            out_file_path = os.path.join(self.folder_encode_out_path, folder_title + ".dzf")
+        self._encode(file_path, out_file_path)
+
+    def _encode(self, file_path, encode_out_path):
         symbols = []
-        with open(os.path.join("out", folder_title + ".dzf"), "r", encoding="utf-8") as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             for line in file:
                 symbols.extend(line)
 
@@ -49,20 +72,16 @@ class Runner(object):
         encoded_huffman_tree = huffman_tree.tree_code()
         encoded_count_bytes = self._convert_to_225(len(encoded_str))
 
-        if self.folder_encode_out_path is None:
-            out_file_path = os.path.join("out", self.folder_encode_path + ".dzf")
-        else:
-            out_file_path = os.path.join(self.folder_encode_out_path, folder_title + ".dzf")
         HuffmanWriter.write(
-            out_file_path, encoded_bytes,
+            encode_out_path, encoded_bytes,
             encoded_huffman_tree, encoded_count_bytes
         )
 
     def decode_folder(self, **kwargs):
-        if "folder_path" in kwargs:
-            self.folder_decode_path = kwargs["folder_path"]
-        if "folder_path_out" in kwargs:
-            self.folder_decode_out_path = kwargs["folder_path_out"]
+        if "folder_decode_path" in kwargs:
+            self.folder_decode_path = kwargs["folder_decode_path"]
+        if "folder_decode_out_path" in kwargs:
+            self.folder_decode_out_path = kwargs["folder_decode_out_path"]
 
         file_bytes = b""
         with open(self.folder_decode_path, "rb") as file:
@@ -86,7 +105,7 @@ class Runner(object):
 
         folder_json = json.loads(source_str)
 
-        self.dark_archiver.dearchive_folder(folder_json, self.folder_encode_out_path)
+        self.dark_archiver.dearchive_folder(folder_json, self.folder_decode_out_path)
         with open("out/test_dirs.dzf", "w+", encoding="utf-8") as file:
             file.writelines(source_str)
 
