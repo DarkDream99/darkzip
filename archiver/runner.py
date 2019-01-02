@@ -2,14 +2,10 @@ import json
 import os
 
 from archiver.archiver import Archiver
-from archiver.huffman_tree import HuffmanTree
-from archiver.huffman_table import HuffmanTable
-from archiver.huffman_coder import HuffmanEncoder
-from archiver.huffman_decoder import HuffmanDecoder
+from archiver.huffmancompressor import HuffmanCompressor
 from archiver.huffman_reader import HuffmanReader
 from archiver.huffman_writer import HuffmanWriter
 from archiver.byter import Byter
-from collections import Counter
 
 
 class Runner(object):
@@ -59,17 +55,12 @@ class Runner(object):
             for line in file:
                 symbols.extend(line)
 
-        counter = Counter(symbols)
-        huffman_tree = HuffmanTree(counter)
-        leaves = huffman_tree.leaves
-        huffman_table = HuffmanTable(leaves)
-
-        encoder = HuffmanEncoder(huffman_table, symbols)
-        encoded_str = encoder.encode()
+        compressor = HuffmanCompressor(source_text=symbols)
+        encoded_str = compressor.encode()
 
         byter = Byter()
         encoded_bytes = byter.convert_to_bytes(encoded_str)
-        encoded_huffman_tree = huffman_tree.tree_code()
+        encoded_huffman_tree = compressor.huffman_tree_code
         encoded_count_bytes = self._convert_to_225(len(encoded_str))
 
         HuffmanWriter.write(
@@ -91,18 +82,16 @@ class Runner(object):
                 next_byte = file.read(1)
 
         huffman_reader = HuffmanReader(file_bytes)
-        huffman_tree = HuffmanTree(huffman_reader.tree_bytes)
-        byter = Byter()
+        compressor = HuffmanCompressor(huffman_tree_bytes=huffman_reader.tree_bytes)
 
+        byter = Byter()
         bit_str_bytes = huffman_reader.count_bytes
         bit_str = byter.convert_to_bit_str(
             huffman_reader.code_bytes,
             self._convert_from_255(bit_str_bytes)
         )
 
-        huffman_decoder = HuffmanDecoder(huffman_tree)
-        source_str = huffman_decoder.decode(bit_str)
-
+        source_str = compressor.decode(bit_str)
         folder_json = json.loads(source_str)
 
         self.dark_archiver.dearchive_folder(folder_json, self.folder_decode_out_path)

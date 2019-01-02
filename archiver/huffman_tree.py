@@ -87,7 +87,6 @@ class HuffmanTree(object):
                     else:
                         next_node.right_child = new_node
                     next_node = new_node
-                    finding_symbol = True
                 else:
                     next_node = next_node.parent
                     while next_node.right_child is not None and next_node.parent is not None:
@@ -106,7 +105,6 @@ class HuffmanTree(object):
         coded_tree_str = b""
         prev_node = None
 
-        is_upping = False
         for node in self.dfs():
             if prev_node is None:
                 prev_node = node
@@ -151,4 +149,3 @@ class HuffmanTree(object):
             if next_node is not None and next_node.symbol not in used_nodes_symbols:
                 used_nodes_symbols.add(next_node.symbol)
                 selected_nodes.append(next_node)
-

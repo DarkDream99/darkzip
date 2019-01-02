@@ -100,13 +100,14 @@ if params[0] == COMPARE:
 #
 #         if params[0] == CODE:
 #             modules = params[1].split('=')
-#             for ind, m in enumerate(modules):
-#                 if m.strip() == "path":
-#                     if is_file(modules[ind + 1].strip()):
-#                         settings["file_encode_path"] = modules[ind + 1].strip()
-#                         is_file_command = True
-#                     else:
-#                         settings["folder_encode_path"] = modules[ind + 1].strip()
+#             base_settings = take_settings(modules)
+#
+#             if "path" in base_settings:
+#                 if is_file(base_settings["path"]):
+#                     settings["file_encode_path"] = base_settings["path"]
+#                     is_file_command = True
+#                 else:
+#                     settings["folder_encode_path"] = base_settings["path"]
 #
 #             if is_file_command:
 #                 runner.encode_file(**settings)
@@ -114,51 +115,27 @@ if params[0] == COMPARE:
 #                 runner.encode_folder(**settings)
 #
 #         if params[0] == DECODE:
-#             prev_command = None
 #             modules = line.split('=')
-#             for ind, m in enumerate(modules):
-#                 items = m.split()
-#                 if prev_command is None:
-#                     prev_command = items[-1]
-#                     continue
+#             base_settings = take_settings(modules)
 #
-#                 curr_param = ""
-#                 for ind in range(len(items)):
-#                     if ind != len(items) - 1 or len(items) == 1:
-#                         curr_param += items[ind] + " "
-#
-#                 if prev_command.strip() == "path":
-#                     settings["folder_decode_path"] = curr_param.strip()
-#                 if prev_command.strip() == "out":
-#                     settings["folder_decode_out_path"] = curr_param.strip()
-#
-#                 prev_command = items[-1]
+#             if "path" in base_settings:
+#                 settings["folder_decode_path"] = base_settings["path"]
+#             if "out" in base_settings:
+#                 settings["folder_decode_out_path"] = base_settings["out"]
 #
 #             runner.decode_folder(**settings)
 #
 #         if params[0] == COMPARE:
-#             prev_command = None
 #             modules = line.split('=')
+#             base_settings = take_settings(modules)
+#
 #             path_file_a = ""
 #             path_file_b = ""
 #
-#             for ind, m in enumerate(modules):
-#                 items = m.split()
-#                 if prev_command is None:
-#                     prev_command = items[-1]
-#                     continue
-#
-#                 curr_param = ""
-#                 for ind in range(len(items)):
-#                     if ind != len(items) - 1 or len(items) == 1:
-#                         curr_param += items[ind] + " "
-#
-#                 if prev_command.strip() == "path_a":
-#                     path_file_a = curr_param.strip()
-#                 if prev_command.strip() == "path_b":
-#                     path_file_b = curr_param.strip()
-#
-#                 prev_command = items[-1]
+#             if "path_a" in base_settings:
+#                 path_file_a = base_settings["path_a"]
+#             if "path_b" in base_settings:
+#                 path_file_b = base_settings["path_b"]
 #
 #             if checker.check_files(path_file_a, path_file_b):
 #                 print("Equal files")
