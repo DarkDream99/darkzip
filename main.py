@@ -12,6 +12,10 @@ DECODE = "d"
 EXIT = "e"
 NOT_USE = "-"
 
+STATUSES_SEPARATOR = "|"
+CRYPT = "crypt"
+DECRYPT = "decrypt"
+
 
 def is_file(file_path):
     return os.path.isfile(file_path)
@@ -37,11 +41,13 @@ def take_settings(modules):
 
 
 line = " ".join(sys.argv[1:])
+params = line.split(maxsplit=1)
 print(line)
+
 settings = dict()
+statuses = set()
 is_file_command = False
 runner = Runner()
-params = line.split(maxsplit=1)
 
 if params[0] == CODE:
     modules = params[1].split('=')
@@ -54,14 +60,24 @@ if params[0] == CODE:
         else:
             settings["folder_encode_path"] = base_settings["path"]
 
+    statuses = statuses.union(set(base_settings["stats"].split(STATUSES_SEPARATOR)))
+
     if is_file_command:
-        runner.encode_file(**settings)
+        out_path = runner.encode_file(**settings)
     else:
-        runner.encode_folder(**settings)
+        out_path = runner.encode_folder(**settings)
+
+    if CRYPT in statuses:
+        Runner.crypt_file(out_path, base_settings["key"])
 
 if params[0] == DECODE:
     modules = line.split('=')
     base_settings = take_settings(modules)
+
+    statuses = statuses.union(set(base_settings["stats"].split(STATUSES_SEPARATOR)))
+
+    if DECRYPT in statuses:
+        Runner.decrypt_file(base_settings["path"], base_settings["key"])
 
     if "path" in base_settings:
         settings["folder_decode_path"] = base_settings["path"]
@@ -87,10 +103,12 @@ if params[0] == COMPARE:
     else:
         print("Not equal files")
 
+
 # def run():
 #     command = NOT_USE
 #     runner = Runner()
 #     settings = dict()
+#     statuses = set()
 #
 #     while command != EXIT:
 #         settings.clear()
@@ -109,14 +127,24 @@ if params[0] == COMPARE:
 #                 else:
 #                     settings["folder_encode_path"] = base_settings["path"]
 #
+#             statuses = statuses.union(set(base_settings["stats"].split(STATUSES_SEPARATOR)))
+#
 #             if is_file_command:
-#                 runner.encode_file(**settings)
+#                 out_path = runner.encode_file(**settings)
 #             else:
-#                 runner.encode_folder(**settings)
+#                 out_path = runner.encode_folder(**settings)
+#
+#             if CRYPT in statuses:
+#                 Runner.crypt_file(out_path, base_settings["key"])
 #
 #         if params[0] == DECODE:
 #             modules = line.split('=')
 #             base_settings = take_settings(modules)
+#
+#             statuses = statuses.union(set(base_settings["stats"].split(STATUSES_SEPARATOR)))
+#
+#             if DECRYPT in statuses:
+#                 Runner.decrypt_file(base_settings["path"], base_settings["key"])
 #
 #             if "path" in base_settings:
 #                 settings["folder_decode_path"] = base_settings["path"]

@@ -1,11 +1,14 @@
 import json
 import os
 
+from bitarray import bitarray
+
 from archiver.archiver import Archiver
 from archiver.huffmancompressor import HuffmanCompressor
 from archiver.huffman_reader import HuffmanReader
 from archiver.huffman_writer import HuffmanWriter
 from archiver.byter import Byter
+from cryptodes import des
 
 
 class Runner(object):
@@ -33,6 +36,7 @@ class Runner(object):
 
         file_path = os.path.join("out", file_name + ".dzf")
         self._encode(file_path, out_file_path)
+        return out_file_path
 
     def encode_folder(self, **kwargs):
         if "folder_encode_path" in kwargs:
@@ -48,6 +52,7 @@ class Runner(object):
         else:
             out_file_path = os.path.join(self.folder_encode_out_path, folder_title + ".dzf")
         self._encode(file_path, out_file_path)
+        return out_file_path
 
     def _encode(self, file_path, encode_out_path):
         symbols = []
@@ -92,11 +97,49 @@ class Runner(object):
         )
 
         source_str = compressor.decode(bit_str)
+        source_str = source_str[:source_str.rindex(']')]
+        source_str += ']}'
         folder_json = json.loads(source_str)
 
         self.dark_archiver.dearchive_folder(folder_json, self.folder_decode_out_path)
         with open("out/test_dirs.dzf", "w+", encoding="utf-8") as file:
             file.writelines(source_str)
+
+    @staticmethod
+    def crypt_file(file_path, key):
+        text = b""
+        with open(file_path, "rb") as file:
+            next_byte = file.read(1)
+            while next_byte:
+                text += next_byte
+                next_byte = file.read(1)
+
+        code = des.encrypt(text, key)[0]
+        code_bytes = code.tobytes()
+
+        with open(file_path, "wb") as file:
+            for byte in code_bytes:
+                file.write(byte.to_bytes(1, "little"))
+
+    @staticmethod
+    def decrypt_file(file_path, key):
+        code_bytes = b""
+
+        with open(file_path, "rb") as file:
+            next_byte = file.read()
+            while next_byte:
+                code_bytes += next_byte
+                next_byte = file.read()
+
+        code = bitarray()
+        code.frombytes(code_bytes)
+        decode_bits = des.decrypt(code, key)
+        decode_bytes = decode_bits.tobytes()
+        # source_text = decode_bits.tobytes().decode("utf-8", "replace")
+
+        with open(file_path, "wb") as file:
+            for byte in decode_bytes:
+                file.write(byte.to_bytes(1, "little"))
 
     @staticmethod
     def _convert_to_225(num):

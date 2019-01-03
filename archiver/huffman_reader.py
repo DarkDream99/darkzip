@@ -13,7 +13,7 @@ class HuffmanReader(object):
     def _read_haffman_tree(source_bytes):
         ind = 0
         haffman_bytes = []
-        while ind < len(source_bytes):
+        while ind < len(source_bytes) - 2:
             byte_a = (source_bytes[ind]).to_bytes(1, "little")
             byte_b = (source_bytes[ind + 1]).to_bytes(1, "little")
             byte_c = (source_bytes[ind + 2]).to_bytes(1, "little")

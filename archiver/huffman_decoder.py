@@ -9,7 +9,7 @@ class HuffmanDecoder(object):
 
         while bit_ind != len(bit_str):
             start_node = self.huffman_tree.head
-            while not start_node.is_leaf():
+            while not start_node.is_leaf() and bit_ind != len(bit_str):
                 next_bit = bit_str[bit_ind]
                 if next_bit == '0':
                     start_node = start_node.left_child
