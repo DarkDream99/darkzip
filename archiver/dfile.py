@@ -9,8 +9,8 @@ class DarkFile:
     @property
     def json_object(self):
         json_ob = dict()
-        json_ob["text"] = self.text
-        json_ob["title"] = self.title
+        json_ob["txt"] = self.text
+        json_ob["tl"] = self.title
 
         return json_ob
 

@@ -1,3 +1,5 @@
+import time
+
 from queue import PriorityQueue
 
 from .huffman_reader import SEPARATOR
@@ -105,6 +107,7 @@ class HuffmanTree(object):
         coded_tree_str = b""
         prev_node = None
 
+        start = time.time()
         for node in self.dfs():
             if prev_node is None:
                 prev_node = node
@@ -130,6 +133,8 @@ class HuffmanTree(object):
 
             prev_node = node
 
+        end = time.time()
+        print(f"Tree was decoded: {end - start}")
         return coded_tree_str
 
     def dfs(self):

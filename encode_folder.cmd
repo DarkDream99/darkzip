@@ -1,2 +1,2 @@
-py main.py c path=.\test_dirs
+py main.py c path=.\folder_a
 PAUSE

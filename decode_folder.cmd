@@ -1,2 +1,2 @@
-py main.py d path=.\test_dirs.dzf
+py main.py d path=.\folder_a.dzf
 PAUSE

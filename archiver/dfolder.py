@@ -7,12 +7,12 @@ class DarkFolder:
     @property
     def json_object(self):
         json_ob = dict()
-        json_ob["title"] = self.title
-        json_ob["files"] = []
+        json_ob["tl"] = self.title
+        json_ob["fis"] = []
         for file in self.files:
-            json_ob["files"].append(file.json_object)
-        json_ob["folders"] = []
+            json_ob["fis"].append(file.json_object)
+        json_ob["fos"] = []
         for folder in self.folders:
-            json_ob["folders"].append(folder.json_object)
+            json_ob["fos"].append(folder.json_object)
 
         return json_ob

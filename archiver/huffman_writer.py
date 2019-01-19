@@ -1,3 +1,5 @@
+import time
+
 from .huffman_reader import END_SYMBOL
 
 
@@ -5,6 +7,7 @@ class HuffmanWriter(object):
 
     @staticmethod
     def write(file_path, encoded_bytes, encoded_huffman_tree, encoded_count_bytes):
+        start = time.time()
         with open(file_path, "wb+") as file:
             for byte in encoded_huffman_tree:
                 file.write(byte.to_bytes(1, "little"))
@@ -20,3 +23,5 @@ class HuffmanWriter(object):
 
             for byte in encoded_bytes:
                 file.write(byte.to_bytes(1, "little"))
+        end = time.time()
+        print(f"Huffman was written: {end - start}")

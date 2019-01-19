@@ -39,9 +39,9 @@ class Archiver:
         with open(os.path.join(zip_path, zip_file_name)) as zip_file:
             zip_file_obj = json.load(zip_file)
 
-        path = os.path.join("decompress", zip_file_obj["title"])
+        path = os.path.join("decompress", zip_file_obj["tl"])
         with open(path, "w+", encoding="cp1251") as file:
-            file.writelines(zip_file_obj["text"])
+            file.writelines(zip_file_obj["txt"])
 
     @staticmethod
     def _dir_path(path):
@@ -97,15 +97,15 @@ class Archiver:
 
     @staticmethod
     def dearchive_folder(folder, path_out):
-        folder_path = os.path.join(path_out, folder["title"])
-        if not os.path.exists(folder_path) and folder["title"] != "":
+        folder_path = os.path.join(path_out, folder["tl"])
+        if not os.path.exists(folder_path) and folder["tl"] != "":
             os.makedirs(folder_path)
 
-        for file in folder["files"]:
-            file_path = os.path.join(folder_path, file["title"])
+        for file in folder["fis"]:
+            file_path = os.path.join(folder_path, file["tl"])
             with open(file_path, "w+", encoding="cp1251") as hfile:
-                hfile.writelines(file["text"])
+                hfile.writelines(file["txt"])
 
-        for next_folder in folder["folders"]:
+        for next_folder in folder["fos"]:
             next_out_path = os.path.join(folder_path)
             Archiver.dearchive_folder(next_folder, next_out_path)

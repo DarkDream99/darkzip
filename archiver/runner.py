@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 from bitarray import bitarray
 
@@ -79,12 +80,15 @@ class Runner(object):
         if "folder_decode_out_path" in kwargs:
             self.folder_decode_out_path = kwargs["folder_decode_out_path"]
 
+        start = time.time()
         file_bytes = b""
         with open(self.folder_decode_path, "rb") as file:
-            next_byte = file.read(1)
+            next_byte = file.read(1024)
             while next_byte:
                 file_bytes += next_byte
-                next_byte = file.read(1)
+                next_byte = file.read(1024)
+        end = time.time()
+        print(f"Bytes was read: {end - start}")
 
         huffman_reader = HuffmanReader(file_bytes)
         compressor = HuffmanCompressor(huffman_tree_bytes=huffman_reader.tree_bytes)
