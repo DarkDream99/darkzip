@@ -1,2 +1,2 @@
-py main.py d path=.\tt.dzf stats=decrypt key=rom
+py main.py d path=.\test_dirs.dzf stats=decrypt key=pass
 PAUSE

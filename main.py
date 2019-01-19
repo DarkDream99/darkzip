@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 
 import checker
 
@@ -49,6 +50,7 @@ statuses = set()
 is_file_command = False
 runner = Runner()
 
+start = time.time()
 if params[0] == CODE:
     modules = params[1].split('=')
     base_settings = take_settings(modules)
@@ -59,8 +61,8 @@ if params[0] == CODE:
             is_file_command = True
         else:
             settings["folder_encode_path"] = base_settings["path"]
-
-    statuses = statuses.union(set(base_settings["stats"].split(STATUSES_SEPARATOR)))
+    if "stats" in base_settings:
+        statuses = statuses.union(set(base_settings["stats"].split(STATUSES_SEPARATOR)))
 
     if is_file_command:
         out_path = runner.encode_file(**settings)
@@ -74,7 +76,8 @@ if params[0] == DECODE:
     modules = line.split('=')
     base_settings = take_settings(modules)
 
-    statuses = statuses.union(set(base_settings["stats"].split(STATUSES_SEPARATOR)))
+    if "stats" in base_settings:
+        statuses = statuses.union(set(base_settings["stats"].split(STATUSES_SEPARATOR)))
 
     if DECRYPT in statuses:
         Runner.decrypt_file(base_settings["path"], base_settings["key"])
@@ -103,6 +106,8 @@ if params[0] == COMPARE:
     else:
         print("Not equal files")
 
+end = time.time()
+print("time:", end - start)
 
 # def run():
 #     command = NOT_USE

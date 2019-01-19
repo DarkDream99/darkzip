@@ -1,2 +1,2 @@
-py main.py d path=D:\Git\darkzip\test.dzf
+py main.py d path=.\folder_c\Pushkin_Evgeniy_Onegin.dzf
 PAUSE

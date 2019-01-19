@@ -15,7 +15,7 @@ class Archiver:
     @staticmethod
     def create_darkzip_file(file_obj):
         zip_path = os.path.join("out", file_obj.title[:file_obj.title.rindex('.')] + ".dzf")
-        with open(zip_path, "w", encoding="utf-8") as file:
+        with open(zip_path, "w", encoding="cp1251") as file:
             str_data = json.dumps(file_obj.__dict__)
             file.writelines(str_data)
 
@@ -24,7 +24,7 @@ class Archiver:
         file_title = Archiver._dir_path(file_path)[-1]
 
         strings = ""
-        with open(file_path, "r", encoding="utf-8") as file:
+        with open(file_path, "r", encoding="cp1251") as file:
             for line in file:
                 strings += line
 
@@ -40,7 +40,7 @@ class Archiver:
             zip_file_obj = json.load(zip_file)
 
         path = os.path.join("decompress", zip_file_obj["title"])
-        with open(path, "w+", encoding="utf-8") as file:
+        with open(path, "w+", encoding="cp1251") as file:
             file.writelines(zip_file_obj["text"])
 
     @staticmethod
@@ -62,7 +62,7 @@ class Archiver:
         file_title = compressed_folder.title + ".dzf"
         if title is not None:
             file_title = title + ".dzf"
-        with open(os.path.join("./out", file_title), "w+", encoding="utf-8") as file:
+        with open(os.path.join("./out", file_title), "w+", encoding="cp1251") as file:
             file.writelines(json_folder)
 
     @staticmethod
@@ -103,7 +103,7 @@ class Archiver:
 
         for file in folder["files"]:
             file_path = os.path.join(folder_path, file["title"])
-            with open(file_path, "w+", encoding="utf-8") as hfile:
+            with open(file_path, "w+", encoding="cp1251") as hfile:
                 hfile.writelines(file["text"])
 
         for next_folder in folder["folders"]:

@@ -56,7 +56,7 @@ class Runner(object):
 
     def _encode(self, file_path, encode_out_path):
         symbols = []
-        with open(file_path, "r", encoding="utf-8") as file:
+        with open(file_path, "r", encoding="cp1251") as file:
             for line in file:
                 symbols.extend(line)
 
@@ -102,7 +102,7 @@ class Runner(object):
         folder_json = json.loads(source_str)
 
         self.dark_archiver.dearchive_folder(folder_json, self.folder_decode_out_path)
-        with open("out/test_dirs.dzf", "w+", encoding="utf-8") as file:
+        with open("out/test_dirs.dzf", "w+", encoding="cp1251") as file:
             file.writelines(source_str)
 
     @staticmethod
@@ -135,7 +135,6 @@ class Runner(object):
         code.frombytes(code_bytes)
         decode_bits = des.decrypt(code, key)
         decode_bytes = decode_bits.tobytes()
-        # source_text = decode_bits.tobytes().decode("utf-8", "replace")
 
         with open(file_path, "wb") as file:
             for byte in decode_bytes:

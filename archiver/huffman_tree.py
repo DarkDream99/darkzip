@@ -74,7 +74,7 @@ class HuffmanTree(object):
         for byte in tree_bytes:
             if found_command:
                 if byte == SEPARATOR:
-                    next_node.symbol = byte_symbol.decode("utf-8")
+                    next_node.symbol = byte_symbol.decode("cp1251")
                     byte_symbol = b""
                     found_command = False
                 else:
@@ -113,19 +113,19 @@ class HuffmanTree(object):
             if prev_node.left_child is not None and prev_node.left_child == node:
                 coded_tree_str += b"D"
                 if node.is_leaf():
-                    coded_tree_str += bytes(node.symbol, encoding="utf-8")
+                    coded_tree_str += bytes(node.symbol, encoding="cp1251")
                 coded_tree_str += SEPARATOR
             # move right
             elif prev_node.right_child is not None and prev_node.right_child == node:
                 coded_tree_str += b"D"
                 if node.is_leaf():
-                    coded_tree_str += bytes(node.symbol, encoding="utf-8")
+                    coded_tree_str += bytes(node.symbol, encoding="cp1251")
                 coded_tree_str += SEPARATOR
             # move up
             else:
                 coded_tree_str += b"U"
                 if node.is_leaf():
-                    coded_tree_str += bytes(node.symbol, encoding="utf-8")
+                    coded_tree_str += bytes(node.symbol, encoding="cp1251")
                 coded_tree_str += SEPARATOR
 
             prev_node = node

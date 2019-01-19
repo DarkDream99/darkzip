@@ -1,2 +1,2 @@
-py main.py c path=.\tt stats=crypt key=rom
+py main.py c path=.\test_dirs stats=crypt key=pass
 PAUSE

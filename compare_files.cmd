@@ -1,2 +1,2 @@
-py main.py cmp path_a=D:\Git\darkzip\test.txt path_b=D:\Git\darkzip\decode\test.txt
+py main.py cmp path_a=.\folder_c\Chehow_Zhalobnaya_kniga.txt path_b=.\decode\Chehow_Zhalobnaya_kniga.txt
 PAUSE

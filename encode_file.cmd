@@ -1,2 +1,2 @@
-py main.py c path=D:\Git\darkzip\test.txt
+py main.py c path=.\folder_c\Pushkin_Evgeniy_Onegin.txt
 PAUSE
